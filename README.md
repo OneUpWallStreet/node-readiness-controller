@@ -11,6 +11,8 @@ This repository contains a reference implementation of [NodeReadinessGates](http
 
 The Node Readiness Controller extends Kubernetes' node readiness model by allowing you to define custom readiness rules that evaluate multiple node conditions simultaneously. It automatically manages node taints to prevent scheduling until all specified conditions are satisfied.
 
+Demo here: https://drive.google.com/file/d/14fL7OYJEgUY9qnqSL1Gc_d4rymRRZqHn/view?usp=drive_link
+
 ### Key Features
 
 - **Multi-condition Rules**: Define rules that require ALL specified conditions to be satisfied

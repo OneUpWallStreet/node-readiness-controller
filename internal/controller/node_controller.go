@@ -59,16 +59,13 @@ func (r *NodeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	}
 
 	// Process node against all applicable rules
-	if err := r.Controller.processNodeAgainstAllRules(ctx, node); err != nil {
-		log.Error(err, "Failed to process node", "node", node.Name)
-		return ctrl.Result{RequeueAfter: time.Minute}, err
-	}
+	r.Controller.processNodeAgainstAllRules(ctx, node)
 
 	return ctrl.Result{}, nil
 }
 
 // processNodeAgainstAllRules processes a single node against all applicable rules
-func (r *ReadinessGateController) processNodeAgainstAllRules(ctx context.Context, node *corev1.Node) error {
+func (r *ReadinessGateController) processNodeAgainstAllRules(ctx context.Context, node *corev1.Node) {
 	log := ctrl.LoggerFrom(ctx)
 
 	// Get all applicable rules for this node
@@ -127,8 +124,6 @@ func (r *ReadinessGateController) processNodeAgainstAllRules(ctx context.Context
 				"newResourceVersion", rule.ResourceVersion)
 		}
 	}
-
-	return nil
 }
 
 // getConditionStatus gets the status of a condition on a node
@@ -167,7 +162,7 @@ func (r *ReadinessGateController) removeTaintBySpec(ctx context.Context, node *c
 	patch := client.StrategicMergeFrom(node.DeepCopy())
 	var newTaints []corev1.Taint
 	for _, taint := range node.Spec.Taints {
-		if !(taint.Key == taintSpec.Key && taint.Effect == taintSpec.Effect) {
+		if taint.Key != taintSpec.Key || taint.Effect != taintSpec.Effect {
 			newTaints = append(newTaints, taint)
 		}
 	}

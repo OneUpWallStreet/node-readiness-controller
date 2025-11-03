@@ -119,8 +119,8 @@ var _ = AfterSuite(func() {
 				rule := &ruleList.Items[i]
 				// Remove finalizers to allow deletion
 				rule.Finalizers = nil
-				k8sClient.Update(cleanupCtx, rule)
-				k8sClient.Delete(cleanupCtx, rule)
+				_ = k8sClient.Update(cleanupCtx, rule)
+				_ = k8sClient.Delete(cleanupCtx, rule)
 			}
 		}
 

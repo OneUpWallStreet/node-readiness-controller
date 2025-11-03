@@ -33,6 +33,10 @@ import (
 	nodereadinessiov1alpha1 "github.com/ajaysundark/node-readiness-gate-controller/api/v1alpha1"
 )
 
+const (
+	selectorChangeTaintKey = "selector-change-taint"
+)
+
 var _ = Describe("NodeReadinessGateRule Controller", func() {
 	var (
 		ctx                 context.Context
@@ -166,7 +170,7 @@ var _ = Describe("NodeReadinessGateRule Controller", func() {
 				},
 			}
 			Expect(k8sClient.Create(ctx, testNode)).To(Succeed())
-			defer k8sClient.Delete(ctx, testNode)
+			defer func() { _ = k8sClient.Delete(ctx, testNode) }()
 
 			// Now create a rule - this should immediately evaluate the existing node
 			rule := &nodereadinessiov1alpha1.NodeReadinessGateRule{
@@ -190,7 +194,7 @@ var _ = Describe("NodeReadinessGateRule Controller", func() {
 				},
 			}
 			Expect(k8sClient.Create(ctx, rule)).To(Succeed())
-			defer k8sClient.Delete(ctx, rule)
+			defer func() { _ = k8sClient.Delete(ctx, rule) }()
 
 			// Trigger reconciliation manually to simulate CREATE event handling
 			_, err := ruleReconciler.Reconcile(ctx, reconcile.Request{
@@ -289,7 +293,7 @@ var _ = Describe("NodeReadinessGateRule Controller", func() {
 
 		AfterEach(func() {
 			if testNode != nil {
-				k8sClient.Delete(ctx, testNode)
+				_ = k8sClient.Delete(ctx, testNode)
 			}
 		})
 
@@ -749,7 +753,7 @@ var _ = Describe("NodeReadinessGateRule Controller", func() {
 				},
 				Spec: corev1.NodeSpec{
 					Taints: []corev1.Taint{
-						{Key: "selector-change-taint", Effect: corev1.TaintEffectNoSchedule, Value: "pending"},
+						{Key: selectorChangeTaintKey, Effect: corev1.TaintEffectNoSchedule, Value: "pending"},
 					},
 				},
 				Status: corev1.NodeStatus{
@@ -773,7 +777,7 @@ var _ = Describe("NodeReadinessGateRule Controller", func() {
 					Conditions: []nodereadinessiov1alpha1.ConditionRequirement{
 						{Type: "TestReady", RequiredStatus: corev1.ConditionTrue},
 					},
-					Taint:           nodereadinessiov1alpha1.TaintSpec{Key: "selector-change-taint", Effect: corev1.TaintEffectNoSchedule},
+					Taint:           nodereadinessiov1alpha1.TaintSpec{Key: selectorChangeTaintKey, Effect: corev1.TaintEffectNoSchedule},
 					EnforcementMode: nodereadinessiov1alpha1.EnforcementModeContinuous,
 					NodeSelector: &metav1.LabelSelector{
 						MatchLabels: map[string]string{"env": "prod"},
@@ -804,7 +808,7 @@ var _ = Describe("NodeReadinessGateRule Controller", func() {
 					return false
 				}
 				for _, taint := range updatedNode.Spec.Taints {
-					if taint.Key == "selector-change-taint" {
+					if taint.Key == selectorChangeTaintKey {
 						return true
 					}
 				}
@@ -818,7 +822,7 @@ var _ = Describe("NodeReadinessGateRule Controller", func() {
 					return false
 				}
 				for _, taint := range updatedNode.Spec.Taints {
-					if taint.Key == "selector-change-taint" {
+					if taint.Key == selectorChangeTaintKey {
 						return false // Taint found (unexpected)
 					}
 				}
@@ -844,7 +848,7 @@ var _ = Describe("NodeReadinessGateRule Controller", func() {
 					return false
 				}
 				for _, taint := range updatedNode.Spec.Taints {
-					if taint.Key == "selector-change-taint" {
+					if taint.Key == selectorChangeTaintKey {
 						return false // Taint still exists
 					}
 				}
@@ -858,7 +862,7 @@ var _ = Describe("NodeReadinessGateRule Controller", func() {
 					return false
 				}
 				for _, taint := range updatedNode.Spec.Taints {
-					if taint.Key == "selector-change-taint" {
+					if taint.Key == selectorChangeTaintKey {
 						return true
 					}
 				}

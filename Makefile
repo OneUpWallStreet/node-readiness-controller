@@ -147,8 +147,8 @@ lint-api-fix: $(GOLANGCI_LINT_KAL)
 lint-config: $(GOLANGCI_LINT) ## Verify golangci-lint linter configuration
 	$(GOLANGCI_LINT) config verify
 
-.PHONY: verify-boilerplate
-verify-boilerplate: ## Verify boilerplate text exists in each file
+.PHONY: verify
+verify: 
 	 ./hack/verify-all.sh
 
 ## --------------------------------------

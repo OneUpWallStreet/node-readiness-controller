@@ -138,5 +138,5 @@ type NodeReadinessRuleList struct {
 }
 
 func init() {
-	SchemeBuilder.Register(&NodeReadinessRule{}, &NodeReadinessRuleList{})
+	objectTypes = append(objectTypes, &NodeReadinessRule{}, &NodeReadinessRuleList{})
 }

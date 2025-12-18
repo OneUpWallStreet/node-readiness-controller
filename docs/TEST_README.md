@@ -53,7 +53,7 @@ Deploy the controller image to nrr-test-worker
 make deploy IMG_PREFIX=controller IMG_TAG=latest
 ```
 
-Verify the controller is running on the control plane node (`nrg-test-control-plane`):
+Verify the controller is running on the control plane node (`nrr-test-control-plane`):
 ```bash
 kubectl get pods -n nrr-system -o wide
 ```

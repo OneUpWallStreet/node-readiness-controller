@@ -20,6 +20,9 @@ if [[ -z ${IMG_TAG:-} ]]; then
 fi
 echo "Using IMG_TAG=${IMG_TAG}"
 
-IMG_TAG=${IMG_TAG} IMG_PREFIX=${IMG_PREFIX} make docker-build
+IMG_TAG=${IMG_TAG} IMG_PREFIX=${IMG_PREFIX} make docker-buildx
 
-IMG_TAG=${IMG_TAG} IMG_PREFIX=${IMG_PREFIX} make docker-push
+# TODO(psaggu): remove once there's a end-to-end green run of docker-buildx
+# and tags are successfully published to our artifact registry repository
+#IMG_TAG=${IMG_TAG} IMG_PREFIX=${IMG_PREFIX} make docker-buildx
+#IMG_TAG=${IMG_TAG} IMG_PREFIX=${IMG_PREFIX} make docker-push

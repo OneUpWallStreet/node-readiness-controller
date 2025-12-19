@@ -108,7 +108,49 @@ func (r *ReadinessGateController) processNodeAgainstAllRules(ctx context.Context
 			"rule", rule.Name,
 			"resourceVersion", rule.ResourceVersion)
 
-		if err := r.updateRuleStatus(ctx, rule); err != nil {
+		err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+			latestRule := &readinessv1alpha1.NodeReadinessRule{}
+			if err := r.Get(ctx, client.ObjectKey{Name: rule.Name}, latestRule); err != nil {
+				return err
+			}
+
+			// update only the specific node evaluation status
+			found := false
+			for i := range latestRule.Status.NodeEvaluations {
+				if latestRule.Status.NodeEvaluations[i].NodeName == node.Name {
+					latestRule.Status.NodeEvaluations[i] = r.getNodeEvaluationFromRuleStatus(rule, node.Name)
+					found = true
+					break
+				}
+			}
+			if !found {
+				latestRule.Status.NodeEvaluations = append(
+					latestRule.Status.NodeEvaluations,
+					r.getNodeEvaluationFromRuleStatus(rule, node.Name),
+				)
+			}
+
+			// handle status.FailedNodes for this node
+			var updatedFailedNodes []readinessv1alpha1.NodeFailure
+			for _, failure := range latestRule.Status.FailedNodes {
+				if failure.NodeName != node.Name {
+					updatedFailedNodes = append(updatedFailedNodes, failure)
+				}
+			}
+			for _, failure := range rule.Status.FailedNodes {
+				if failure.NodeName == node.Name {
+					updatedFailedNodes = append(updatedFailedNodes, failure)
+				}
+			}
+			latestRule.Status.FailedNodes = updatedFailedNodes
+
+			// Copy DryRunResults if present
+			latestRule.Status.DryRunResults = rule.Status.DryRunResults
+
+			return r.Status().Update(ctx, latestRule)
+		})
+
+		if err != nil {
 			log.Error(err, "Failed to update rule status after node evaluation",
 				"node", node.Name,
 				"rule", rule.Name,

@@ -74,7 +74,10 @@ spec:
                       - Unknown
                       type: string
                     type:
-                      description: type of Node condition
+                      description: |-
+                        type of Node condition
+
+                        Following kubebuilder validation is referred from https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Condition
                       maxLength: 316
                       minLength: 1
                       type: string
@@ -321,7 +324,11 @@ spec:
                       minLength: 1
                       type: string
                     nodeName:
-                      description: nodeName is the name of the failed Node.
+                      description: |-
+                        nodeName is the name of the failed Node.
+
+                        Following kubebuilder validation is referred from
+                        https://github.com/kubernetes/apimachinery/blob/84d740c9e27f3ccc94c8bc4d13f1b17f60f7080b/pkg/util/validation/validation.go#L198
                       maxLength: 253
                       minLength: 1
                       pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
@@ -416,7 +423,7 @@ spec:
                       type: string
                     taintStatus:
                       description: taintStatus represents the taint status on the
-                        Node, one of Preset, Absent.
+                        Node, one of Present, Absent.
                       enum:
                       - Present
                       - Absent

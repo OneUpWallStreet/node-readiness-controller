@@ -91,6 +91,8 @@ type NodeReadinessRuleSpec struct {
 type ConditionRequirement struct {
 	// type of Node condition
 	//
+	// Following kubebuilder validation is referred from https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Condition
+	//
 	// +required
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=316
@@ -160,6 +162,9 @@ type NodeReadinessRuleStatus struct {
 type NodeFailure struct {
 	// nodeName is the name of the failed Node.
 	//
+	// Following kubebuilder validation is referred from
+	// https://github.com/kubernetes/apimachinery/blob/84d740c9e27f3ccc94c8bc4d13f1b17f60f7080b/pkg/util/validation/validation.go#L198
+	//
 	// +required
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=253
@@ -206,7 +211,7 @@ type NodeEvaluation struct {
 	// +kubebuilder:validation:MaxItems=1000
 	ConditionResults []ConditionEvaluationResult `json:"conditionResults,omitempty"`
 
-	// taintStatus represents the taint status on the Node, one of Preset, Absent.
+	// taintStatus represents the taint status on the Node, one of Present, Absent.
 	//
 	// +required
 	TaintStatus TaintStatus `json:"taintStatus,omitempty"`

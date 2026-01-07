@@ -192,6 +192,21 @@ docker-buildx: ## Build and push docker image for the manager for cross-platform
 	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${IMG_PREFIX}:${IMG_TAG} .
 	- $(CONTAINER_TOOL) buildx rm nrrcontroller-builder
 
+.PHONY: docker-build-reporter
+docker-build-reporter: ## Build docker image with the reporter.
+	$(CONTAINER_TOOL) build -f Dockerfile.reporter -t ${IMG_PREFIX}:${IMG_TAG} .
+
+.PHONY: docker-push-reporter
+docker-push-reporter: ## Push docker image with the reporter.
+	$(CONTAINER_TOOL) push ${IMG_PREFIX}:${IMG_TAG}
+
+.PHONY: docker-buildx-reporter
+docker-buildx-reporter: ## Build and push docker image for the reporter for cross-platform support
+	- $(CONTAINER_TOOL) buildx create --name reporter-builder
+	$(CONTAINER_TOOL) buildx use reporter-builder
+	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${IMG_PREFIX}:${IMG_TAG} -f Dockerfile.reporter .
+	- $(CONTAINER_TOOL) buildx rm reporter-builder
+
 .PHONY: build-installer
 build-installer: manifests generate $(KUSTOMIZE) ## Generate a consolidated YAML with CRDs and deployment.
 	mkdir -p dist

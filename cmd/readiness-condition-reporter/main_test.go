@@ -50,7 +50,7 @@ func TestCheckHealth(t *testing.T) {
 			}
 
 			httpClient := &http.Client{Timeout: 1 * time.Second}
-			health, err := checkHealth(httpClient, endpoint)
+			health, err := checkHealth(context.TODO(), httpClient, endpoint)
 			if err != nil {
 				if !tt.expectError {
 					t.Errorf("checkHealth() error = %v", err)

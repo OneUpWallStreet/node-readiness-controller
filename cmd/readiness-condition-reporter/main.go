@@ -25,7 +25,7 @@ const (
 	defaultHTTPTimeout   = 10 * time.Second
 )
 
-// HealthResponse represents the health check response structure
+// HealthResponse represents the health check response structure.
 type HealthResponse struct {
 	Healthy bool   `json:"healthy"`
 	Reason  string `json:"reason"`
@@ -61,7 +61,9 @@ func main() {
 		if err == nil {
 			interval = parsedInterval
 		} else {
-			klog.ErrorS(err, "Failed to parse check interval, using default", "input", checkInterval, "default", defaultCheckInterval)
+			klog.ErrorS(err, "Failed to parse check interval, using default",
+				"input", checkInterval,
+				"default", defaultCheckInterval)
 		}
 	}
 
@@ -87,7 +89,7 @@ func main() {
 	// Main loop to check health and update condition
 	for {
 		// Check health
-		health, err := checkHealth(httpClient, checkEndpoint)
+		health, err := checkHealth(context.TODO(), httpClient, checkEndpoint)
 		if err != nil {
 			klog.ErrorS(err, "Health check failed", "endpoint", checkEndpoint)
 			// Report unhealthy on error
@@ -108,9 +110,18 @@ func main() {
 	}
 }
 
-// checkHealth performs an HTTP request to check component health
-func checkHealth(client *http.Client, endpoint string) (*HealthResponse, error) {
-	resp, err := client.Get(endpoint)
+// checkHealth performs an HTTP request to check component health.
+func checkHealth(ctx context.Context, client *http.Client, endpoint string) (*HealthResponse, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	if err != nil {
+		return &HealthResponse{
+			Healthy: false,
+			Reason:  "RequestCreationError",
+			Message: fmt.Sprintf("Failed to create request for endpoint %s: %v", endpoint, err),
+		}, nil
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return &HealthResponse{
 			Healthy: false,
@@ -146,7 +157,7 @@ func checkHealth(client *http.Client, endpoint string) (*HealthResponse, error) 
 	}, nil
 }
 
-// updateNodeCondition updates the node condition based on health check
+// updateNodeCondition updates the node condition based on health check.
 func updateNodeCondition(client kubernetes.Interface, nodeName, conditionType string, health *HealthResponse) error {
 	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
 		// Get the node

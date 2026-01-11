@@ -348,4 +348,4 @@ crd-ref-docs:
 		--source-path=${PWD}/api/v1alpha1/ \
 		--config=crd-ref-docs.yaml \
 		--renderer=markdown \
-		--output-path=${PWD}/docs/spec.md
+		--output-path=${PWD}/docs/book/src/reference/api-spec.md

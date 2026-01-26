@@ -55,6 +55,7 @@ spec:
       #             operator: In
       #             values:
       #               - platform    # Modify this value based on your platform node labels.
+      priorityClassName: system-cluster-critical
       nodeSelector:
         "node-role.kubernetes.io/control-plane": ""
       tolerations:
